@@ -1,0 +1,70 @@
+{
+  "indexVersion": 1,
+  "name": "Clef for New API (community)",
+  "plugins": [
+    {
+      "key": "clef",
+      "name": "Cloudflare Clef",
+      "icon": "text:CF",
+      "author": {
+        "name": "camera-2018",
+        "url": "https://github.com/camera-2018"
+      },
+      "description": {
+        "en": "Clef and Clef-flash decisions through Workers AI or a self-hosted System One endpoint",
+        "zh": "通过 Workers AI 或自部署 System One 服务调用 Clef 与 Clef-flash"
+      },
+      "website": "https://github.com/camera-2018/new-api-plugin-clef",
+      "models": [
+        "clef",
+        "clef-flash"
+      ],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/clef/v1/systemone",
+          "type": "submit",
+          "decode": "decodeSystemOne",
+          "render": "renderSystemOne",
+          "retainResult": false
+        }
+      ],
+      "usageSchema": {
+        "input_tokens": {
+          "type": "number",
+          "unit": "token",
+          "description": {
+            "en": "Input token unit price",
+            "zh": "输入 token 单价"
+          }
+        }
+      },
+      "usageExamples": [
+        {
+          "label": "Clef",
+          "facts": {
+            "input_tokens": 1000
+          }
+        },
+        {
+          "label": "Clef-flash",
+          "facts": {
+            "input_tokens": 1000
+          }
+        }
+      ],
+      "latest": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "path": "plugins/tasks/clef/1.0.0/plugin.js",
+          "sha256": "3f663f991a68e1ea8873b6793d5a9d9dd434a29c69f2658d3b74ad82fd8f97bd",
+          "minApiVersion": 1,
+          "kind": "task",
+          "allowedHosts": [],
+          "auth": "api_key"
+        }
+      ]
+    }
+  ]
+}

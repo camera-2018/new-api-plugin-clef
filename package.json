@@ -1,0 +1,14 @@
+{
+  "name": "new-api-plugin-clef",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "New API task plugin for Cloudflare Clef and Clef-flash",
+  "license": "Apache-2.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test",
+    "index": "node tools/build-index.mjs",
+    "check": "node tools/build-index.mjs --check"
+  }
+}

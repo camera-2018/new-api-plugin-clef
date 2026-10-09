@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+.tmp/
+credentials*.json
+test-state.json
