@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // Derived from QuantumNous/new-api-plugins TypeSafe 1.1.0 (Apache-2.0).
 // Modified by camera-2018: Clef models, Workers AI REST, images, validation,
-// deployment-specific reservations and normalized synchronous responses.
+// completion-only billing and normalized synchronous responses.
 // This module is self-contained: no imports, network calls or request globals.
 
-// Reservation estimates, NOT tokenizer limits. Keep self-hosted values aligned
-// with your server before serving larger contexts. Never take these from clients.
-const SELF_HOSTED_RESERVE = { clef: 4096, "clef-flash": 4096 };
+// Bound actual reported usage; the inference server enforces its own context.
 const CLOUD_CONTEXT = 65536;
 const MODELS = ["clef", "clef-flash"];
 const MIB = 1024 * 1024;
@@ -15,7 +13,7 @@ export const meta = {
   apiVersion: 1,
   key: "clef",
   name: "Cloudflare Clef",
-  version: "1.0.0",
+  version: "1.0.1",
   icon: "text:CF",
   author: { name: "camera-2018", url: "https://github.com/camera-2018" },
   website: "https://github.com/camera-2018/new-api-plugin-clef",
@@ -228,11 +226,11 @@ export function parseSubmitResponse(ctx, response) {
 
 export function extractUsage(ctx) {
   validateRequest(ctx.requestBody);
-  const model = modelName(ctx.upstreamModel || ctx.model);
   if (ctx.usagePurpose === "billing_ratios") return null;
-  const target = upstream(ctx);
-  // A downstream gateway's context is unknown; reserve the published ceiling.
-  return { input_tokens: target.cloud || target.gateway ? CLOUD_CONTEXT : SELF_HOSTED_RESERVE[model] };
+  // This hook supplies the submission reservation, not measured usage.
+  // Synchronous requests reserve zero and bill validated completion usage.
+  // Never use this zero as a fallback for missing or malformed actual usage.
+  return { input_tokens: 0 };
 }
 
 export function extractUsageOnComplete(ctx, result, body) {

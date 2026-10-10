@@ -24,7 +24,7 @@
 
 在 New API 的任务插件管理中上传：
 
-**[下载 plugin.js](https://raw.githubusercontent.com/camera-2018/new-api-plugin-clef/main/plugins/tasks/clef/1.0.0/plugin.js)**
+**[下载 plugin.js](https://raw.githubusercontent.com/camera-2018/new-api-plugin-clef/main/plugins/tasks/clef/1.0.1/plugin.js)**
 
 启用后，新建“任务插件”渠道（类型 61），绑定 **Cloudflare Clef**。模型填写 `clef`、`clef-flash` 中上游实际提供的模型，不要为了凑列表把没部署的模型也加上。
 
@@ -115,7 +115,7 @@ curl "$NEW_API_URL/clef/v1/systemone" \
 
 每次支持 1～64 个问题。`choice` 需要 2～255 个选项，`score` 需要 2～10 个等级。省略问题说明时使用问题 ID 作为说明。暂不支持视频、流式回复和聊天接口；这些字段会明确报错，不会静默丢弃。
 
-## 定价与预扣
+## 定价与结算
 
 在 New API 为你启用的每个模型配置“表达式计费”。例如，**假设**你想定为每百万输入 tokens 0.1 美元：
 
@@ -125,15 +125,13 @@ tier("base", u("input_tokens") * 0.1 / 1000000)
 
 这只是示例价格，不是 Cloudflare 官方报价。可以分别给 `clef` 和 `clef-flash` 定价；分组倍率仍由 New API 处理。不要把任务表达式里的 `/ 1000000` 去掉，也不要用聊天的 `p`、`c` 变量代替 `u("input_tokens")`。
 
-调用开始时暂时占用额度，完成后按真实输入量结算、多退少补：
+从 **1.0.1** 开始，插件在提交阶段预留额度为 **0**。推理返回后，New API 读取上游的真实 `usage.input_tokens`，再按你的价格扣款。钱包计费不会在调用模型前暂扣一整窗 token 的费用；Cloudflare、自部署和上游 New API 使用同一流程。
 
-| 上游 | 默认预扣依据 |
-| --- | --- |
-| 自部署 System One | 4096 input tokens |
-| Cloudflare Workers AI | 65536 input tokens |
-| 另一个 New API 网关 | 65536 input tokens，因为无法知道它后面的部署窗口 |
+插件只提供调用完成后结算这一种模式，没有预付费开关。插件索引只保留当前后付费版本。
 
-**预扣不是模型上下文限制，也不是准确的 token 估算。** 自部署默认按 4K 实例配置；如果你部署了更大窗口，发布自己的版本前应修改 `plugin.js` 顶部 `SELF_HOSTED_RESERVE`，与服务器对齐。客户端不能通过请求参数降低预扣。实际返回的 0～65536 input tokens 都会照实结算，不会截成 4096；实际用量超出预扣时，宿主可能需要补扣，额度不足时可能无法交付结果。
+提交阶段的 0 只表示“不提前预留费用”，不表示实际用了 0 tokens。插件必须收到合法的真实用量才会报告成功，实际返回的 0～65536 input tokens 都会照实结算。
+
+模型的上下文大小由推理服务决定，与计费预留无关，扩容时无需修改插件。调用前账户仍需符合 New API 的余额与令牌检查；若推理完成时余额不够支付实际费用，宿主可能拒绝交付结果。订阅计费由 New API 单独管理，仍可能预留最低额度，不能保证与钱包计费完全相同。
 
 上游错误或响应缺少有效答案、模型身份、用量时，插件不报告成功，交给宿主走失败/退款流程。答案不写入 New API 的任务结果库，账单和任务记录仍由宿主保留。上游 5xx 的具体原因可能只显示在管理员日志中。
 
@@ -152,10 +150,10 @@ npm run check
 还应使用实际 New API 宿主验证，而不仅是 Node：
 
 ```bash
-new-api plugin lint plugins/tasks/clef/1.0.0/plugin.js
+new-api plugin lint plugins/tasks/clef/1.0.1/plugin.js
 ```
 
-验证包括 68 项单元测试，以及 New API v1.0.0-rc.42 中的上传、真实 Clef-flash 推理、并发和结算。Workers AI 响应外层、图片透传及异常退款使用模拟上游验证；Cloudflare 云端与 Clef 大模型尚未进行线上实测。
+验证包括 69 项单元测试，以及 New API v1.0.0-rc.42 中的上传、真实 Clef-flash 推理、并发和结算。Workers AI 响应外层、图片透传及异常退款使用模拟上游验证；Cloudflare 云端与 Clef 大模型尚未进行线上实测。
 
 ## 来源与许可
 

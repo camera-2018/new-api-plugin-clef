@@ -53,12 +53,12 @@
           }
         }
       ],
-      "latest": "1.0.0",
+      "latest": "1.0.1",
       "versions": [
         {
-          "version": "1.0.0",
-          "path": "plugins/tasks/clef/1.0.0/plugin.js",
-          "sha256": "3f663f991a68e1ea8873b6793d5a9d9dd434a29c69f2658d3b74ad82fd8f97bd",
+          "version": "1.0.1",
+          "path": "plugins/tasks/clef/1.0.1/plugin.js",
+          "sha256": "659aa9b1ff646ab350db4cdf3ed8702e6b265978b52e30c4ebc150a3d06cb89c",
           "minApiVersion": 1,
           "kind": "task",
           "allowedHosts": [],

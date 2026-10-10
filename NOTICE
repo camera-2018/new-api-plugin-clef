@@ -6,8 +6,8 @@ licensed under Apache License 2.0.
 https://github.com/QuantumNous/new-api-plugins
 
 Modifications add Clef/Clef-flash model support, Workers AI REST routing,
-embedded image forwarding, request/response validation, and deployment-aware
-token reservations.
+embedded image forwarding, request/response validation, and billing of measured
+input tokens after synchronous inference.
 
 This is an independent community plugin, not an official Cloudflare or
 QuantumNous release. Clef model weights and the New API host are not included.

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import * as plugin from "../plugins/tasks/clef/1.0.0/plugin.js";
+import * as plugin from "../plugins/tasks/clef/1.0.1/plugin.js";
 
 const account = "a".repeat(32);
 const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=";
@@ -40,14 +40,14 @@ for (const model of ["clef", "clef-flash"]) {
     assert.equal(result.taskId, "task_example");
     assert.deepEqual(plugin.extractUsageOnComplete({}, {}, result.taskData), { input_tokens: 353 });
   });
-  test(`${model}: Workers AI URL, envelope, images and cloud reservation`, () => {
+  test(`${model}: Workers AI URL, envelope, images and zero submission reservation`, () => {
     const context = ctx(model);
     context.baseUrl = `https://api.cloudflare.com/client/v4/accounts/${account}/ai`;
     context.requestBody.images = [png];
     const request = plugin.buildSubmitRequest(context);
     assert.equal(request.url, `${context.baseUrl}/run/@cf/cloudflare/${model}`);
     assert.deepEqual(request.body.images, [png]);
-    assert.equal(plugin.extractUsage(context).input_tokens, 65536);
+    assert.equal(plugin.extractUsage(context).input_tokens, 0);
     const wrapped = { statusCode: 200, body: { success: true, errors: [], result: response(model).body } };
     assert.deepEqual(plugin.parseSubmitResponse(context, wrapped).taskData, response(model).body);
   });
@@ -66,7 +66,7 @@ for (const suffix of ["", "/v1", "/clef", "/clef/v1", "/clef/v1/systemone"]) {
     context.baseUrl += suffix;
     context.upstream.kind = "new_api";
     assert.equal(plugin.buildSubmitRequest(context).url, "http://localhost:8080/clef/v1/systemone");
-    assert.equal(plugin.extractUsage(context).input_tokens, 65536);
+    assert.equal(plugin.extractUsage(context).input_tokens, 0);
   });
 }
 test("Workers AI accepts /ai/run and honors mapped model", () => {
@@ -170,12 +170,22 @@ for (const [name, mutate, pattern] of responseFailures) {
     assert.throws(() => plugin.parseSubmitResponse(ctx(), reply), pattern);
   });
 }
-test("reservation is not an actual usage cap; zero and larger completions are exact", () => {
-  assert.equal(plugin.extractUsage(ctx()).input_tokens, 4096);
+test("zero submission reservation still bills measured nonzero and zero completions exactly", () => {
+  assert.equal(plugin.extractUsage(ctx()).input_tokens, 0);
   assert.equal(plugin.extractUsage({ ...ctx(), usagePurpose: "billing_ratios" }), null);
   for (const n of [0, 353, 4096, 9000, 65536]) {
     const result = plugin.parseSubmitResponse(ctx(), response("clef-flash", n));
     assert.equal(plugin.extractUsageOnComplete({}, {}, result.taskData).input_tokens, n);
+  }
+});
+test("postpaid mode never treats missing completion usage as free usage", () => {
+  for (const model of ["clef", "clef-flash"]) {
+    const context = ctx(model);
+    assert.deepEqual(plugin.extractUsage(context), { input_tokens: 0 });
+    const reply = response(model);
+    delete reply.body.usage;
+    assert.throws(() => plugin.parseSubmitResponse(context, reply), /input_tokens/);
+    assert.throws(() => plugin.extractUsageOnComplete({}, {}, reply.body), /input_tokens/);
   }
 });
 test("JSON only, no polling, raw rendering and a simple error envelope", () => {

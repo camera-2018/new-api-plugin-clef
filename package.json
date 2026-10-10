@@ -1,6 +1,6 @@
 {
   "name": "new-api-plugin-clef",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "description": "New API task plugin for Cloudflare Clef and Clef-flash",
