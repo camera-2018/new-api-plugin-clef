@@ -10,6 +10,16 @@
 
 这是社区插件，不是 Cloudflare 或 New API 官方出品。
 
+仓库还提供可选的 **TypeSafe Jev** 适配，走独立 `/typesafe/v1/systemone` 接口，不影响已有 Clef。下面的 Clef 安装说明保持不变。
+
+### Jev 的接法
+
+在任务插件管理中上传 [`plugins/tasks/typesafe/1.1.1/plugin.js`](plugins/tasks/typesafe/1.1.1/plugin.js)，启用后创建类型 61 的任务插件渠道，绑定 `TypeSafe Jev (postpaid)`。模型填写上游实际支持的 `jev-1.13.0`、`jev-latest` 或 `jev-preview`，Base URL 填厂商根地址（可带 `/v1`），密钥填对应厂商 Key。
+
+调用方使用 New API Key，请求 `/typesafe/v1/systemone`，请求格式与下文 Clef 示例一致，只需更换模型名。Jev 当前仅支持文本/JSON，不支持图片或流式回复。如果上游是也装好 TypeSafe 插件的 New API，才用类型 60；仅实现 `/v1/systemone` 的代理仍要选类型 61，避免误请求网页接口。
+
+该版本基于官方 TypeSafe 1.1.0 修改，**不是官方新版**。与本仓库 Clef 一样，提交时输入预留为 0，成功后按真实 `usage.input_tokens` 结算，失败不按猜测用量收费。钱包模式不预扣；订阅模式仍可能受 New API 自身最小预留逻辑影响。
+
 ## 能做什么
 
 - `choice`：从几个选项中选一个，例如把工单分给售后还是技术支持。

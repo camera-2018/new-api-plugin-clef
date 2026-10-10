@@ -1,6 +1,6 @@
 {
   "indexVersion": 1,
-  "name": "Clef for New API (community)",
+  "name": "Clef and Jev System One for New API (community)",
   "plugins": [
     {
       "key": "clef",
@@ -59,6 +59,65 @@
           "version": "1.0.1",
           "path": "plugins/tasks/clef/1.0.1/plugin.js",
           "sha256": "659aa9b1ff646ab350db4cdf3ed8702e6b265978b52e30c4ebc150a3d06cb89c",
+          "minApiVersion": 1,
+          "kind": "task",
+          "allowedHosts": [],
+          "auth": "api_key"
+        }
+      ]
+    },
+    {
+      "key": "typesafe",
+      "name": "TypeSafe Jev (postpaid)",
+      "icon": "text:TS",
+      "author": {
+        "name": "camera-2018",
+        "url": "https://github.com/camera-2018"
+      },
+      "description": {
+        "en": "Community Jev System One adapter: bill validated input usage after synchronous inference",
+        "zh": "社区 Jev System One 适配：同步推理成功后按真实输入 token 结算"
+      },
+      "website": "https://github.com/camera-2018/new-api-plugin-clef",
+      "models": [
+        "jev-1.13.0",
+        "jev-latest",
+        "jev-preview"
+      ],
+      "routes": [
+        {
+          "method": "POST",
+          "path": "/typesafe/v1/systemone",
+          "type": "submit",
+          "decode": "decodeSystemOne",
+          "render": "renderSystemOne",
+          "retainResult": false
+        }
+      ],
+      "usageSchema": {
+        "input_tokens": {
+          "type": "number",
+          "unit": "token",
+          "description": {
+            "en": "Input token unit price",
+            "zh": "输入 token 单价"
+          }
+        }
+      },
+      "usageExamples": [
+        {
+          "label": "Jev",
+          "facts": {
+            "input_tokens": 1000
+          }
+        }
+      ],
+      "latest": "1.1.1",
+      "versions": [
+        {
+          "version": "1.1.1",
+          "path": "plugins/tasks/typesafe/1.1.1/plugin.js",
+          "sha256": "eae8b3a32ed9d01d222310d8ce632dd6eec5fb3ae54901e06398445d7e9f1854",
           "minApiVersion": 1,
           "kind": "task",
           "allowedHosts": [],
